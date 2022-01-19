@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 ```
 
+
 ```{r}
 # load packages, installing if missing
 if (!require(librarian)){
@@ -28,6 +29,9 @@ dir_data <- here("data/sdm")
 dir.create(dir_data, showWarnings = F, recursive = T)
 ```
 
+
+
+
 Get Species observations
 
 ```{r}
@@ -43,22 +47,23 @@ if (!file.exists(obs_geo) | redo){
     limit = 10000))
   
   # extract data frame from result
-  df <- res$gbif$data[[1]]
+  df <- res$gbif$data[[1]] 
   readr::write_csv(df, obs_csv)
   
   # convert to points of observation from lon/lat columns in data frame
-  obs <- df %>%
-    filter(key != "3346522663" & 
-             key != "1455865494" & 
+  obs <- df %>% 
+  filter(key != "3346522663" & 
+           key != "1455865494" & 
              key != "1703330130" & 
-             key != "1586032801") %>% 
+             key != "1586032801" &
+         key != "476865025"
+           ) %>% 
     sf::st_as_sf(
       coords = c("longitude", "latitude"),
       crs = st_crs(4326)) %>% 
     select(prov, key) # save space (joinable from obs_csv)
   sf::write_sf(obs, obs_geo, delete_dsn=T)
 }
-
 obs <- sf::read_sf(obs_geo)
 nrow(obs) # number of rows
 ```
@@ -77,6 +82,8 @@ Question 2. Do you see any odd observations, like marine species on land or vice
 # show points on map
 mapview::mapview(obs, map.types = "Stamen.TerrainBackground")
 ```
+
+
 
 
 Get Environmental Data
@@ -108,7 +115,7 @@ DT::datatable(env_layers)
 
 ```{r}
 # choose layers after some inspection and perhaps consulting literature
-env_layers_vec <- c("WC_alt", "WC_bio1", "WC_bio2", "ER_tri", "ER_topoWet")
+env_layers_vec <- c("WC_alt", "WC_bio1", "WC_bio2", "ER_tri", "ER_topoWet", "WC_bio12")
 
 # get layers
 env_stack <- load_layers(env_layers_vec)
@@ -120,6 +127,7 @@ plot(env_stack, nc=2)
 
 
 ```{r}
+redo <- TRUE
 obs_hull_geo  <- file.path(dir_data, "obs_hull.geojson")
 env_stack_grd <- file.path(dir_data, "env_stack.grd")
 

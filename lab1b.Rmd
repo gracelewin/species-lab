@@ -29,7 +29,7 @@ datatable(pts_env, rownames = F)
 ```{r}
 GGally::ggpairs(
   select(pts_env, -ID),
-  aes(color = factor(present)))
+  aes(color = factor(present), alpha = 0.5))
 ```
 
 
@@ -43,13 +43,13 @@ nrow(d)
 
 ```{r}
 # fit a linear model
-mdl <- lm(present ~ ., data = d)
+mdl <- lm(present ~ ., data = d) # . means everything
 summary(mdl)
 ```
 
 
 ```{r}
-y_predict <- predict(mdl, d, type="response")
+y_predict <- predict(mdl, d, type="response") # add a predict column
 y_true    <- d$present
 
 range(y_predict)
